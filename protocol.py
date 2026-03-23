@@ -14,8 +14,7 @@ class TransferHeader:
 
     file_name: str
     file_size: int
-    mode: str
-    iv_or_nonce_hex: str
+    iv_hex: str
 
 
 def pack_length_prefixed(payload: bytes) -> bytes:

@@ -15,8 +15,7 @@ class TestProtocol(unittest.TestCase):
         header = TransferHeader(
             file_name="demo.txt",
             file_size=123,
-            mode="CBC",
-            iv_or_nonce_hex="01020304",
+            iv_hex="01020304",
         )
         encoded = encode_header(header)
         self.assertTrue(encoded.startswith(PROTOCOL_MAGIC + bytes([PROTOCOL_VERSION])))

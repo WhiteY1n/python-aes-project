@@ -30,6 +30,6 @@ def key_expansion(key: bytes) -> RoundKeys:
     raise NotImplementedError("AES key schedule is not implemented yet")
 
 
-def expand_key(master_key: bytes) -> RoundKeys:
+def expand_key(key: bytes) -> RoundKeys:
     """Backward-compatible alias for key_expansion."""
-    return key_expansion(master_key)
+    return key_expansion(key)

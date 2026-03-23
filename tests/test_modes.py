@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from modes import cbc_encrypt, decrypt_ctr
+from modes import cbc_decrypt, cbc_encrypt
 
 
 class TestModes(unittest.TestCase):
@@ -26,12 +26,12 @@ class TestModes(unittest.TestCase):
                 iv=b"\x01" * 16,
             )
 
-    def test_decrypt_ctr_placeholder(self) -> None:
+    def test_cbc_decrypt_placeholder(self) -> None:
         with self.assertRaises(NotImplementedError):
-            decrypt_ctr(
+            cbc_decrypt(
                 ciphertext=b"\x00" * 16,
-                master_key=b"\x00" * 16,
-                nonce=b"\x02" * 16,
+                key=b"\x00" * 16,
+                iv=b"\x02" * 16,
             )
 
 

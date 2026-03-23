@@ -21,11 +21,11 @@ class TestFileCrypto(unittest.TestCase):
 
     def test_normalize_mode(self) -> None:
         self.assertEqual(normalize_mode("cbc"), "CBC")
-        self.assertEqual(normalize_mode("CTR"), "CTR")
+        self.assertEqual(normalize_mode("CBC"), "CBC")
 
     def test_normalize_mode_rejects_invalid(self) -> None:
         with self.assertRaises(ValueError):
-            normalize_mode("GCM")
+            normalize_mode("CTR")
 
     def test_encrypt_file_requires_existing_input(self) -> None:
         config = FileCryptoConfig()
@@ -33,8 +33,8 @@ class TestFileCrypto(unittest.TestCase):
             encrypt_file(
                 input_path=Path("missing.bin"),
                 output_path=Path("out.bin"),
-                master_key=b"\x00" * 16,
-                iv_or_nonce=b"\x01" * 16,
+                key=b"\x00" * 16,
+                iv=b"\x01" * 16,
                 config=config,
             )
 
@@ -69,8 +69,8 @@ class TestFileCrypto(unittest.TestCase):
                 encrypt_file(
                     input_path=input_path,
                     output_path=output_path,
-                    master_key=b"\x00" * 16,
-                    iv_or_nonce=b"\x01" * 16,
+                    key=b"\x00" * 16,
+                    iv=b"\x01" * 16,
                     config=config,
                 )
 
@@ -80,8 +80,8 @@ class TestFileCrypto(unittest.TestCase):
             decrypt_file(
                 input_path=Path("missing.enc"),
                 output_path=Path("out.txt"),
-                master_key=b"\x00" * 16,
-                iv_or_nonce=b"\x01" * 16,
+                key=b"\x00" * 16,
+                iv=b"\x01" * 16,
                 config=config,
             )
 

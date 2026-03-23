@@ -7,7 +7,7 @@ from pathlib import Path
 
 from cli_parsers import parse_hex_iv, parse_hex_key
 from constants import DEFAULT_CHUNK_SIZE, DEFAULT_SOCKET_TIMEOUT
-from file_crypto import FileCryptoConfig, encrypt_file, normalize_mode
+from file_crypto import FileCryptoConfig, encrypt_file
 from network_sender import FileSender, SenderConfig
 from protocol import TransferHeader
 
@@ -38,7 +38,6 @@ def build_argument_parser() -> argparse.ArgumentParser:
         required=True,
         help="CBC IV in hex (exactly 32 hex chars)",
     )
-    parser.add_argument("--mode", default="CBC", choices=["CBC", "CTR"], help="Cipher mode")
     parser.add_argument("--chunk-size", type=int, default=DEFAULT_CHUNK_SIZE)
     parser.add_argument("--timeout", type=float, default=DEFAULT_SOCKET_TIMEOUT)
     parser.add_argument("--overwrite", action="store_true")
@@ -51,7 +50,6 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     file_config = FileCryptoConfig(
-        mode=normalize_mode(args.mode),
         chunk_size=args.chunk_size,
         overwrite=args.overwrite,
     )
@@ -60,8 +58,8 @@ def main(argv: list[str] | None = None) -> int:
         encrypt_file(
             input_path=args.input,
             output_path=args.encrypted_output,
-            master_key=args.key_hex,
-            iv_or_nonce=args.iv_hex,
+            key=args.key_hex,
+            iv=args.iv_hex,
             config=file_config,
         )
 
@@ -69,8 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         header = TransferHeader(
             file_name=args.input.name,
             file_size=encrypted_size,
-            mode=file_config.mode,
-            iv_or_nonce_hex=args.iv_hex.hex(),
+            iv_hex=args.iv_hex.hex(),
         )
 
         sender = FileSender(

@@ -1,4 +1,4 @@
-"""AES block cipher mode skeletons (CBC and CTR)."""
+"""AES block cipher mode skeletons (CBC only)."""
 
 from __future__ import annotations
 
@@ -44,14 +44,14 @@ def cbc_decrypt(
 
 def encrypt_cbc(
     plaintext: bytes,
-    master_key: bytes,
+    key: bytes,
     iv: bytes,
     block_encryptor: BlockEncryptor = aes_encrypt_block,
 ) -> bytes:
     """Backward-compatible alias for cbc_encrypt."""
     return cbc_encrypt(
         plaintext=plaintext,
-        key=master_key,
+        key=key,
         iv=iv,
         block_encryptor=block_encryptor,
     )
@@ -59,49 +59,14 @@ def encrypt_cbc(
 
 def decrypt_cbc(
     ciphertext: bytes,
-    master_key: bytes,
+    key: bytes,
     iv: bytes,
     block_decryptor: BlockDecryptor = aes_decrypt_block,
 ) -> bytes:
     """Backward-compatible alias for cbc_decrypt."""
     return cbc_decrypt(
         ciphertext=ciphertext,
-        key=master_key,
+        key=key,
         iv=iv,
         block_decryptor=block_decryptor,
-    )
-
-
-def encrypt_ctr(
-    plaintext: bytes,
-    master_key: bytes,
-    nonce: bytes,
-    initial_counter: int = 0,
-    block_encryptor: BlockEncryptor = aes_encrypt_block,
-) -> bytes:
-    """Encrypt bytes using CTR mode."""
-    if len(nonce) != BLOCK_SIZE_BYTES:
-        raise ValueError(f"CTR nonce must be {BLOCK_SIZE_BYTES} bytes")
-    if initial_counter < 0:
-        raise ValueError("initial_counter must be non-negative")
-
-    _ = block_encryptor
-    # TODO: Implement counter block construction and keystream XOR.
-    raise NotImplementedError("encrypt_ctr is not implemented yet")
-
-
-def decrypt_ctr(
-    ciphertext: bytes,
-    master_key: bytes,
-    nonce: bytes,
-    initial_counter: int = 0,
-    block_encryptor: BlockEncryptor = aes_encrypt_block,
-) -> bytes:
-    """Decrypt bytes using CTR mode (symmetric with encryption)."""
-    return encrypt_ctr(
-        plaintext=ciphertext,
-        master_key=master_key,
-        nonce=nonce,
-        initial_counter=initial_counter,
-        block_encryptor=block_encryptor,
     )

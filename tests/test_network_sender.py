@@ -21,8 +21,7 @@ class TestNetworkSender(unittest.TestCase):
         header = TransferHeader(
             file_name="a.bin",
             file_size=10,
-            mode="CBC",
-            iv_or_nonce_hex="00",
+            iv_hex="00",
         )
         with self.assertRaises(NotImplementedError):
             sender.send_header(connection=None, header=header)  # type: ignore[arg-type]

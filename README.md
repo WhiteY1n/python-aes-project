@@ -15,30 +15,29 @@ Important:
 ## Project structure
 
 ```text
-aes_project/
-  aes_core.py
-  key_schedule.py
-  padding.py
-  modes.py
-  file_crypto.py
-  protocol.py
-  network_sender.py
-  network_receiver.py
-  utils.py
-  constants.py
-  main_sender.py
-  main_receiver.py
-  tests/
-    test_aes_core.py
-    test_key_schedule.py
-    test_padding.py
-    test_modes.py
-    test_file_crypto.py
-    test_protocol.py
-    test_network_sender.py
-    test_network_receiver.py
-    test_utils.py
-    test_constants.py
+aes_core.py
+key_schedule.py
+padding.py
+modes.py
+file_crypto.py
+protocol.py
+network_sender.py
+network_receiver.py
+utils.py
+constants.py
+main_sender.py
+main_receiver.py
+tests/
+  test_aes_core.py
+  test_key_schedule.py
+  test_padding.py
+  test_modes.py
+  test_file_crypto.py
+  test_protocol.py
+  test_network_sender.py
+  test_network_receiver.py
+  test_utils.py
+  test_constants.py
 ```
 
 ## Unified data convention
@@ -58,7 +57,7 @@ aes_project/
 - key_schedule: AES key expansion interface and validation.
 - aes_core: AES single-block encrypt/decrypt skeleton.
 - padding: PKCS#7 pad/unpad helpers.
-- modes: CBC/CTR mode skeletons built on block cipher functions.
+- modes: CBC mode skeleton built on block cipher functions.
 - file_crypto: High-level file encryption/decryption workflow.
 - protocol: Header/frame encoding skeleton for socket transfer.
 - network_sender: Sender-side TCP workflow skeleton.
@@ -92,6 +91,6 @@ python -m unittest discover -s tests -p "test_*.py"
 ## Next implementation steps
 
 1. Implement key schedule and AES core rounds in key_schedule and aes_core.
-2. Implement CBC/CTR in modes, then wire chunked file IO in file_crypto.
+2. Implement CBC in modes, then wire chunked file IO in file_crypto.
 3. Finalize protocol framing and ACK flow in protocol and network modules.
 4. Expand tests with real vectors and end-to-end transfer checks.
