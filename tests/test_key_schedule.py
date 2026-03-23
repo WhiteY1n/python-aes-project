@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from key_schedule import expand_key, key_expansion, validate_key_size
+from key_schedule import expand_key, key_expansion, rot_word, sub_word, validate_key_size
 
 
 class TestKeySchedule(unittest.TestCase):
@@ -14,13 +14,26 @@ class TestKeySchedule(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_key_size(b"short")
 
-    def test_key_expansion_placeholder(self) -> None:
-        with self.assertRaises(NotImplementedError):
-            key_expansion(b"\x00" * 16)
+    def test_rot_word(self) -> None:
+        self.assertEqual(rot_word(bytes.fromhex("00112233")), bytes.fromhex("11223300"))
 
-    def test_expand_key_alias_placeholder(self) -> None:
-        with self.assertRaises(NotImplementedError):
-            expand_key(b"\x00" * 16)
+    def test_sub_word(self) -> None:
+        self.assertEqual(sub_word(bytes.fromhex("00112233")), bytes.fromhex("638293c3"))
+
+    def test_key_expansion_returns_11_round_keys(self) -> None:
+        round_keys = key_expansion(b"\x00" * 16)
+        self.assertEqual(len(round_keys), 11)
+        self.assertTrue(all(isinstance(round_key, bytes) for round_key in round_keys))
+        self.assertTrue(all(len(round_key) == 16 for round_key in round_keys))
+
+    def test_key_expansion_first_round_key_matches_master_key(self) -> None:
+        master_key = bytes.fromhex("00112233445566778899aabbccddeeff")
+        round_keys = key_expansion(master_key)
+        self.assertEqual(round_keys[0], master_key)
+
+    def test_expand_key_alias(self) -> None:
+        master_key = bytes.fromhex("000102030405060708090a0b0c0d0e0f")
+        self.assertEqual(expand_key(master_key), key_expansion(master_key))
 
 
 if __name__ == "__main__":

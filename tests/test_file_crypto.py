@@ -7,95 +7,58 @@ import unittest
 from pathlib import Path
 
 from file_crypto import (
-    FileCryptoConfig,
     decrypt_bytes_to_file,
-    decrypt_file,
-    encrypt_file,
     encrypt_file_to_bytes,
-    normalize_mode,
+    read_binary_file,
+    write_binary_file,
 )
 
 
 class TestFileCrypto(unittest.TestCase):
     """Validate high-level file crypto contracts."""
 
-    def test_normalize_mode(self) -> None:
-        self.assertEqual(normalize_mode("cbc"), "CBC")
-        self.assertEqual(normalize_mode("CBC"), "CBC")
-
-    def test_normalize_mode_rejects_invalid(self) -> None:
-        with self.assertRaises(ValueError):
-            normalize_mode("CTR")
-
-    def test_encrypt_file_requires_existing_input(self) -> None:
-        config = FileCryptoConfig()
-        with self.assertRaises(FileNotFoundError):
-            encrypt_file(
-                input_path=Path("missing.bin"),
-                output_path=Path("out.bin"),
-                key=b"\x00" * 16,
-                iv=b"\x01" * 16,
-                config=config,
-            )
+    def test_read_write_binary_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            file_path = Path(tmp_dir) / "data.bin"
+            expected = b"\x00\x01\x02hello\xff"
+            write_binary_file(str(file_path), expected)
+            self.assertEqual(read_binary_file(str(file_path)), expected)
 
     def test_encrypt_file_to_bytes_requires_existing_input(self) -> None:
         with self.assertRaises(FileNotFoundError):
             encrypt_file_to_bytes(
-                input_path=Path("missing.bin"),
+                input_path="missing.bin",
                 key=b"\x00" * 16,
                 iv=b"\x01" * 16,
             )
 
-    def test_encrypt_file_to_bytes_placeholder(self) -> None:
+    def test_encrypt_file_to_bytes_returns_ciphertext(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             input_path = Path(tmp_dir) / "input.bin"
             input_path.write_bytes(b"hello world")
 
-            with self.assertRaises(NotImplementedError):
-                encrypt_file_to_bytes(
-                    input_path=input_path,
-                    key=b"\x00" * 16,
-                    iv=b"\x01" * 16,
-                )
-
-    def test_encrypt_file_placeholder(self) -> None:
-        config = FileCryptoConfig(overwrite=True)
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            input_path = Path(tmp_dir) / "input.bin"
-            output_path = Path(tmp_dir) / "output.bin"
-            input_path.write_bytes(b"hello world")
-
-            with self.assertRaises(NotImplementedError):
-                encrypt_file(
-                    input_path=input_path,
-                    output_path=output_path,
-                    key=b"\x00" * 16,
-                    iv=b"\x01" * 16,
-                    config=config,
-                )
-
-    def test_decrypt_file_requires_existing_input(self) -> None:
-        config = FileCryptoConfig()
-        with self.assertRaises(FileNotFoundError):
-            decrypt_file(
-                input_path=Path("missing.enc"),
-                output_path=Path("out.txt"),
+            ciphertext = encrypt_file_to_bytes(
+                input_path=str(input_path),
                 key=b"\x00" * 16,
                 iv=b"\x01" * 16,
-                config=config,
             )
+            self.assertIsInstance(ciphertext, bytes)
+            self.assertGreater(len(ciphertext), 0)
 
-    def test_decrypt_bytes_to_file_placeholder(self) -> None:
+    def test_encrypt_then_decrypt_roundtrip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
-            output_path = Path(tmp_dir) / "out.txt"
-            with self.assertRaises(NotImplementedError):
-                decrypt_bytes_to_file(
-                    ciphertext=b"\x00" * 16,
-                    output_path=output_path,
-                    key=b"\x00" * 16,
-                    iv=b"\x01" * 16,
-                    overwrite=True,
-                )
+            input_path = Path(tmp_dir) / "plain.bin"
+            output_path = Path(tmp_dir) / "restored.bin"
+            plaintext = b"Binary\x00data\x01for CBC file crypto."
+            input_path.write_bytes(plaintext)
+
+            key = bytes.fromhex("00112233445566778899aabbccddeeff")
+            iv = bytes.fromhex("0102030405060708090a0b0c0d0e0f10")
+
+            ciphertext = encrypt_file_to_bytes(str(input_path), key=key, iv=iv)
+            decrypt_bytes_to_file(ciphertext, str(output_path), key=key, iv=iv)
+
+            self.assertEqual(output_path.read_bytes(), plaintext)
 
 
 if __name__ == "__main__":

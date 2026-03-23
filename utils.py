@@ -8,7 +8,7 @@ import secrets
 from pathlib import Path
 from typing import Iterator
 
-from constants import DEFAULT_CHUNK_SIZE
+DEFAULT_CHUNK_SIZE: int = 64 * 1024
 
 
 def chunk_reader(file_path: Path, chunk_size: int = DEFAULT_CHUNK_SIZE) -> Iterator[bytes]:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import string
 
-from constants import AES128_KEY_SIZE_BYTES, IV_SIZE_BYTES
+from constants import AES128_KEY_SIZE, IV_SIZE
 
 
 def _parse_fixed_hex(
@@ -50,7 +50,7 @@ def parse_hex_key(value: str) -> bytes:
     return _parse_fixed_hex(
         value=value,
         field_name="AES-128 key",
-        expected_bytes=AES128_KEY_SIZE_BYTES,
+        expected_bytes=AES128_KEY_SIZE,
     )
 
 
@@ -59,5 +59,5 @@ def parse_hex_iv(value: str) -> bytes:
     return _parse_fixed_hex(
         value=value,
         field_name="CBC IV",
-        expected_bytes=IV_SIZE_BYTES,
+        expected_bytes=IV_SIZE,
     )

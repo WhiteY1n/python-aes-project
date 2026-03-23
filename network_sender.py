@@ -1,56 +1,42 @@
-"""Network sending skeleton for encrypted file transfer."""
+"""Sender helper for one-shot AES-CBC file transfer over TCP."""
 
 from __future__ import annotations
 
 import socket
-from dataclasses import dataclass
 from pathlib import Path
 
-from constants import DEFAULT_SOCKET_TIMEOUT
-from protocol import TransferHeader
+from file_crypto import encrypt_file_to_bytes, read_binary_file
+from protocol import build_packet
+
+DEFAULT_SOCKET_TIMEOUT: float = 10.0
 
 
-@dataclass(frozen=True)
-class SenderConfig:
-    """Connection settings for sender client."""
+def send_file(host: str, port: int, input_path: str, key: bytes, iv: bytes) -> None:
+    """Read file, encrypt with AES-CBC, build packet, and send over TCP."""
+    path_obj = Path(input_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    host: str
-    port: int
-    timeout: float = DEFAULT_SOCKET_TIMEOUT
+    print(f"[sender] Reading file: {input_path}")
+    plaintext = read_binary_file(input_path)
 
+    print("[sender] Encrypting with AES-CBC...")
+    ciphertext = encrypt_file_to_bytes(input_path, key=key, iv=iv)
 
-class FileSender:
-    """Client-side helper to send metadata and encrypted bytes."""
+    print("[sender] Building packet...")
+    packet = build_packet(
+        file_name=path_obj.name,
+        original_file_size=len(plaintext),
+        iv=iv,
+        ciphertext=ciphertext,
+    )
 
-    def __init__(self, config: SenderConfig) -> None:
-        self.config = config
+    print(f"[sender] Connecting to {host}:{port}")
+    try:
+        with socket.create_connection((host, port), timeout=DEFAULT_SOCKET_TIMEOUT) as connection:
+            connection.settimeout(DEFAULT_SOCKET_TIMEOUT)
+            connection.sendall(packet)
+    except OSError as error:
+        raise ConnectionError(f"Failed to send file to {host}:{port}: {error}") from error
 
-    def _connect(self) -> socket.socket:
-        """Open a TCP connection to the receiver."""
-        connection = socket.create_connection(
-            (self.config.host, self.config.port),
-            timeout=self.config.timeout,
-        )
-        connection.settimeout(self.config.timeout)
-        return connection
-
-    def send_header(self, connection: socket.socket, header: TransferHeader) -> None:
-        """Send transfer header to receiver."""
-        _ = (connection, header)
-        # TODO: Send encoded header and wait for ACK.
-        raise NotImplementedError("send_header is not implemented yet")
-
-    def send_encrypted_file(self, connection: socket.socket, encrypted_path: Path) -> None:
-        """Stream encrypted file content to receiver."""
-        if not encrypted_path.exists():
-            raise FileNotFoundError(encrypted_path)
-
-        _ = connection
-        # TODO: Stream framed payload chunks and finalize transfer.
-        raise NotImplementedError("send_encrypted_file is not implemented yet")
-
-    def send_file(self, encrypted_path: Path, header: TransferHeader) -> None:
-        """Perform full sender workflow in one call."""
-        with self._connect() as connection:
-            self.send_header(connection, header)
-            self.send_encrypted_file(connection, encrypted_path)
+    print(f"[sender] Sent {len(ciphertext)} encrypted bytes from {path_obj.name}")

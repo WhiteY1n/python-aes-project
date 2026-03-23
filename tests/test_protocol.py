@@ -2,31 +2,58 @@
 
 from __future__ import annotations
 
+import socket
 import unittest
 
-from constants import PROTOCOL_MAGIC, PROTOCOL_VERSION
-from protocol import TransferHeader, decode_header, encode_header, unpack_length_prefixed
+from protocol import (
+    build_packet,
+    parse_header,
+    recv_exact,
+)
 
 
 class TestProtocol(unittest.TestCase):
     """Validate protocol framing contracts."""
 
-    def test_encode_header_prefix(self) -> None:
-        header = TransferHeader(
-            file_name="demo.txt",
-            file_size=123,
-            iv_hex="01020304",
+    def test_build_and_parse_packet(self) -> None:
+        file_name = "demo.txt"
+        file_size = 123
+        iv = bytes.fromhex("0102030405060708090a0b0c0d0e0f10")
+        ciphertext = b"\xaa\xbb\xcc\xdd"
+
+        packet = build_packet(
+            file_name=file_name,
+            original_file_size=file_size,
+            iv=iv,
+            ciphertext=ciphertext,
         )
-        encoded = encode_header(header)
-        self.assertTrue(encoded.startswith(PROTOCOL_MAGIC + bytes([PROTOCOL_VERSION])))
 
-    def test_decode_header_placeholder(self) -> None:
-        with self.assertRaises(NotImplementedError):
-            decode_header(b"dummy")
+        header, ciphertext_offset, ciphertext_length = parse_header(packet)
+        self.assertEqual(header.file_name, file_name)
+        self.assertEqual(header.file_size, file_size)
+        self.assertEqual(header.iv, iv)
+        self.assertEqual(ciphertext_length, len(ciphertext))
+        self.assertEqual(packet[ciphertext_offset : ciphertext_offset + ciphertext_length], ciphertext)
 
-    def test_unpack_length_prefixed_placeholder(self) -> None:
-        with self.assertRaises(NotImplementedError):
-            unpack_length_prefixed(b"\x00\x00\x00\x04test")
+    def test_recv_exact_collects_partial_chunks(self) -> None:
+        left, right = socket.socketpair()
+        try:
+            right.sendall(b"ab")
+            right.sendall(b"cd")
+            self.assertEqual(recv_exact(left, 4), b"abcd")
+        finally:
+            left.close()
+            right.close()
+
+    def test_recv_exact_raises_when_socket_closed_early(self) -> None:
+        left, right = socket.socketpair()
+        try:
+            right.sendall(b"ab")
+            right.close()
+            with self.assertRaises(ConnectionError):
+                recv_exact(left, 4)
+        finally:
+            left.close()
 
 
 if __name__ == "__main__":

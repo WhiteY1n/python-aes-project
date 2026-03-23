@@ -1,15 +1,11 @@
-"""Constants used by the AES-128 student project.
-
-This file contains constants for AES-128 implementation.
-BLOCK_SIZE is 16 bytes and AES128_KEY_SIZE is 16 bytes.
-S_BOX, INV_S_BOX, and RCON are used by aes_core.py and key_schedule.py.
-"""
+"""Core constants for AES-128 with CBC mode support."""
 
 from __future__ import annotations
 
 # AES-128 size and round parameters.
 BLOCK_SIZE: int = 16
 AES128_KEY_SIZE: int = 16
+IV_SIZE: int = 16
 NB: int = 4
 NK: int = 4
 NR: int = 10
@@ -548,20 +544,3 @@ RCON: tuple[int, ...] = (
 	0x1B,
 	0x36,
 )
-
-# Compatibility aliases for existing modules in this project.
-BLOCK_SIZE_BYTES: int = BLOCK_SIZE
-AES128_KEY_SIZE_BYTES: int = AES128_KEY_SIZE
-IV_SIZE_BYTES: int = BLOCK_SIZE
-NONCE_SIZE_BYTES: int = BLOCK_SIZE
-VALID_KEY_SIZES: tuple[int, ...] = (AES128_KEY_SIZE,)
-
-# Non-cryptographic project constants used by file transfer modules.
-DEFAULT_MODE: str = "CBC"
-DEFAULT_CHUNK_SIZE: int = 64 * 1024
-DEFAULT_SOCKET_TIMEOUT: float = 10.0
-PROTOCOL_MAGIC: bytes = b"AESF"
-PROTOCOL_VERSION: int = 1
-HEADER_ENCODING: str = "utf-8"
-LENGTH_PREFIX_BYTES: int = 4
-MAX_FILE_NAME_LENGTH: int = 255
