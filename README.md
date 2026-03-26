@@ -16,7 +16,9 @@ Project demo truyền file bằng Python standard library, dùng:
 - `file_crypto.py`: mã hóa/giải mã dữ liệu file
 - `modes.py`, `padding.py`, `aes_core.py`, `key_schedule.py`: lõi AES/CBC/PKCS#7
 - `tests/`: unit tests
-
+## Sau khi pull chạy 2 lệnh
+- python -m venv .venv
+- .venv\Scripts\activate
 ## Cách chạy nhanh
 
 Mở terminal tại thư mục project.
