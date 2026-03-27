@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import socket
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from network_sender import send_file
+from network_sender import _resolve_preferred_host, send_file
 
 
 class _FakeConnection:
@@ -57,6 +58,21 @@ class TestNetworkSender(unittest.TestCase):
                 )
 
         self.assertGreater(len(fake_connection.sent_data), 0)
+
+    def test_resolve_preferred_host_returns_ipv4_for_hostname(self) -> None:
+        fake_infos = [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("192.168.1.10", 0)),
+        ]
+        with patch("network_sender.socket.getaddrinfo", return_value=fake_infos):
+            resolved = _resolve_preferred_host("receiver-host")
+
+        self.assertEqual(resolved, "192.168.1.10")
+
+    def test_resolve_preferred_host_falls_back_to_original_on_dns_error(self) -> None:
+        with patch("network_sender.socket.getaddrinfo", side_effect=socket.gaierror("dns error")):
+            resolved = _resolve_preferred_host("unknown-host")
+
+        self.assertEqual(resolved, "unknown-host")
 
 
 if __name__ == "__main__":

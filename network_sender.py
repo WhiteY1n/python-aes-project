@@ -8,7 +8,21 @@ from pathlib import Path
 from file_crypto import encrypt_file_to_bytes, read_binary_file
 from protocol import build_packet
 
-DEFAULT_SOCKET_TIMEOUT: float = 10.0
+DEFAULT_CONNECT_TIMEOUT: float = 10.0
+DEFAULT_SEND_TIMEOUT: float = 120.0
+
+
+def _resolve_preferred_host(host: str) -> str:
+    """Resolve hostname and prefer IPv4 target for IPv4-only receiver binding."""
+    try:
+        ipv4_infos = socket.getaddrinfo(host, None, family=socket.AF_INET, type=socket.SOCK_STREAM)
+    except socket.gaierror:
+        return host
+
+    if not ipv4_infos:
+        return host
+
+    return str(ipv4_infos[0][4][0])
 
 
 def send_file(host: str, port: int, input_path: str, key: bytes, iv: bytes) -> None:
@@ -31,12 +45,18 @@ def send_file(host: str, port: int, input_path: str, key: bytes, iv: bytes) -> N
         ciphertext=ciphertext,
     )
 
-    print(f"[sender] Connecting to {host}:{port}")
+    target_host = _resolve_preferred_host(host)
+    print(f"[sender] Connecting to {target_host}:{port}")
     try:
-        with socket.create_connection((host, port), timeout=DEFAULT_SOCKET_TIMEOUT) as connection:
-            connection.settimeout(DEFAULT_SOCKET_TIMEOUT)
+        with socket.create_connection(
+            (target_host, port),
+            timeout=DEFAULT_CONNECT_TIMEOUT,
+        ) as connection:
+            connection.settimeout(DEFAULT_SEND_TIMEOUT)
             connection.sendall(packet)
     except OSError as error:
-        raise ConnectionError(f"Failed to send file to {host}:{port}: {error}") from error
+        raise ConnectionError(
+            f"Failed to send file to {target_host}:{port}: {error}"
+        ) from error
 
     print(f"[sender] Sent {len(ciphertext)} encrypted bytes from {path_obj.name}")
