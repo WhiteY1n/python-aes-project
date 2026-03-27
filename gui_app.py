@@ -23,6 +23,12 @@ RECEIVER_HOST = "0.0.0.0"
 RECEIVER_PORT = 9000
 RECEIVER_OUTPUT_DIR = Path("received")
 
+# Random 128-bit values for quick secure demos; users can still edit fields manually.
+SEND_PRESET_1_KEY_HEX = "08b80c4754d25a828ab0744bf50a4839"
+SEND_PRESET_1_IV_HEX = "12927c14feb1c98b2fe14c75f63ad7f0"
+SEND_PRESET_2_KEY_HEX = "05a8a22e67cc3baf0fc441f26c16e7d1"
+SEND_PRESET_2_IV_HEX = "d789b266a64955f0cb1fe07649d836e3"
+
 
 class AESGuiApp(tk.Tk):
     """Desktop app that provides sender and decrypt tools."""
@@ -38,8 +44,8 @@ class AESGuiApp(tk.Tk):
         self._log_queue: queue.Queue[str] = queue.Queue()
 
         self._send_file_var = tk.StringVar()
-        self._send_key_var = tk.StringVar()
-        self._send_iv_var = tk.StringVar()
+        self._send_key_var = tk.StringVar(value=SEND_PRESET_1_KEY_HEX)
+        self._send_iv_var = tk.StringVar(value=SEND_PRESET_1_IV_HEX)
 
         self._decrypt_file_var = tk.StringVar()
         self._decrypt_key_var = tk.StringVar()
@@ -58,7 +64,7 @@ class AESGuiApp(tk.Tk):
         self.start_listening_button = ttk.Button(
             top_bar,
             text="Start Listening",
-            command=self._on_start_listening,
+            command=self._on_toggle_listening,
         )
         self.start_listening_button.pack(side=tk.LEFT)
 
@@ -118,8 +124,22 @@ class AESGuiApp(tk.Tk):
             pady=6,
         )
 
+        preset_frame = ttk.Frame(parent)
+        preset_frame.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(4, 0))
+        ttk.Label(preset_frame, text="Quick presets:").pack(side=tk.LEFT)
+        ttk.Button(
+            preset_frame,
+            text="Preset 1",
+            command=lambda: self._apply_send_preset(1),
+        ).pack(side=tk.LEFT, padx=(8, 0))
+        ttk.Button(
+            preset_frame,
+            text="Preset 2",
+            command=lambda: self._apply_send_preset(2),
+        ).pack(side=tk.LEFT, padx=(6, 0))
+
         self.send_button = ttk.Button(parent, text="Encrypt & Send", command=self._on_encrypt_send)
-        self.send_button.grid(row=3, column=0, columnspan=3, sticky=tk.W, pady=(12, 0))
+        self.send_button.grid(row=4, column=0, columnspan=3, sticky=tk.W, pady=(12, 0))
 
     def _build_decrypt_tab(self, parent: ttk.Frame) -> None:
         parent.columnconfigure(1, weight=1)
@@ -176,9 +196,26 @@ class AESGuiApp(tk.Tk):
         if selected:
             self._decrypt_file_var.set(selected)
 
-    def _on_start_listening(self) -> None:
+    def _apply_send_preset(self, index: int) -> None:
+        if index == 1:
+            self._send_key_var.set(SEND_PRESET_1_KEY_HEX)
+            self._send_iv_var.set(SEND_PRESET_1_IV_HEX)
+            self._append_log("[sender] Applied preset 1 key/iv.")
+            return
+
+        self._send_key_var.set(SEND_PRESET_2_KEY_HEX)
+        self._send_iv_var.set(SEND_PRESET_2_IV_HEX)
+        self._append_log("[sender] Applied preset 2 key/iv.")
+
+    def _on_toggle_listening(self) -> None:
         if self._receiver_thread and self._receiver_thread.is_alive():
-            messagebox.showinfo("Receiver", "Receiver is already listening.")
+            self._request_stop_listening()
+            return
+
+        self._start_listening()
+
+    def _start_listening(self) -> None:
+        if self._receiver_thread and self._receiver_thread.is_alive():
             return
 
         RECEIVER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -186,12 +223,34 @@ class AESGuiApp(tk.Tk):
         self._receiver_stop_event.clear()
         self._receiver_thread = threading.Thread(target=self._receiver_loop, daemon=True)
         self._receiver_thread.start()
+        self.start_listening_button.configure(text="Stop Listening")
         self.listener_status_var.set(
             f"Receiver: listening on {RECEIVER_HOST}:{RECEIVER_PORT} -> {RECEIVER_OUTPUT_DIR}"
         )
         self._append_log(
             f"[receiver] Background listener started on {RECEIVER_HOST}:{RECEIVER_PORT}"
         )
+
+    def _request_stop_listening(self) -> None:
+        if not self._receiver_thread or not self._receiver_thread.is_alive():
+            self._set_receiver_ui_stopped()
+            return
+
+        self._receiver_stop_event.set()
+        self.start_listening_button.configure(state=tk.DISABLED)
+        self.listener_status_var.set("Receiver: stopping...")
+        self._append_log("[receiver] Stop requested.")
+        self.after(120, self._poll_receiver_stopped)
+
+    def _poll_receiver_stopped(self) -> None:
+        if self._receiver_thread and self._receiver_thread.is_alive():
+            self.after(120, self._poll_receiver_stopped)
+            return
+        self._set_receiver_ui_stopped()
+
+    def _set_receiver_ui_stopped(self) -> None:
+        self.start_listening_button.configure(text="Start Listening", state=tk.NORMAL)
+        self.listener_status_var.set("Receiver: stopped")
 
     def _on_encrypt_send(self) -> None:
         try:
@@ -213,6 +272,12 @@ class AESGuiApp(tk.Tk):
         host = host.strip()
         if not host:
             messagebox.showerror("Validation error", "Receiver IP/host must not be empty.")
+            return
+        if host in {"0.0.0.0", "::"}:
+            messagebox.showerror(
+                "Validation error",
+                "0.0.0.0/:: is only for listening (bind), not for sending. Use receiver LAN IP.",
+            )
             return
 
         port_raw = simpledialog.askstring(
@@ -237,11 +302,12 @@ class AESGuiApp(tk.Tk):
             try:
                 send_file(host=host, port=port, input_path=str(input_path), key=key, iv=iv)
             except Exception as error:
+                error_message = f"Send failed: {error}"
                 self.after(
                     0,
-                    lambda: self._on_send_finished(
+                    lambda msg=error_message: self._on_send_finished(
                         False,
-                        f"Send failed: {error}",
+                        msg,
                     ),
                 )
                 return
@@ -332,7 +398,7 @@ class AESGuiApp(tk.Tk):
                 lambda: messagebox.showerror("Receiver", f"Failed to listen: {error}"),
             )
         finally:
-            self.after(0, lambda: self.listener_status_var.set("Receiver: stopped"))
+            self.after(0, self._set_receiver_ui_stopped)
 
     def _handle_client_packet(self, connection: socket.socket) -> None:
         try:

@@ -48,8 +48,8 @@ Luồng dùng GUI:
 1. Nhấn **Start Listening** ở thanh trên cùng để bật receiver nền tại `0.0.0.0:9000`.
 2. Tab **Send**:
 	- Chọn đúng 1 file.
-	- Nhập `key-hex` (32 hex chars).
-	- Nhập `iv-hex` (32 hex chars).
+	- `key-hex` và `iv-hex` đã có sẵn mặc định (có thể sửa tay).
+	- Có 2 nút **Preset 1** / **Preset 2** để điền nhanh key/iv.
 	- Nhấn **Encrypt & Send**.
 	- Popup hỏi IP và port đích (mặc định `9000`) rồi gửi luôn.
 3. Tab **Decrypt**:
@@ -62,6 +62,15 @@ Ghi chú receiver trong GUI:
 - Mỗi file nhận qua mạng được lưu encrypted dạng `received/<ten_file>.enc` (format: `IV + ciphertext`).
 - Nếu ô key ở tab Decrypt đang hợp lệ, receiver sẽ tự decrypt và lưu luôn `received/<ten_file>`.
 - Nếu key trống/sai, receiver vẫn nhận file encrypted bình thường để decrypt thủ công sau.
+
+Preset mặc định ở tab Send:
+
+- Preset 1
+	- key-hex: `08b80c4754d25a828ab0744bf50a4839`
+	- iv-hex: `12927c14feb1c98b2fe14c75f63ad7f0`
+- Preset 2
+	- key-hex: `05a8a22e67cc3baf0fc441f26c16e7d1`
+	- iv-hex: `d789b266a64955f0cb1fe07649d836e3`
 
 ## Key/IV hợp lệ
 
