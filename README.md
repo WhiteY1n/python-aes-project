@@ -18,7 +18,7 @@ Project demo truyền file bằng Python standard library, dùng:
 - `tests/`: unit tests
 ## Sau khi pull chạy 2 lệnh
 - python -m venv .venv
-- .venv\Scripts\activate
+-  source /../python-aes-project/.venv/Scripts/activate
 ## Cách chạy nhanh
 
 Mở terminal tại thư mục project.
