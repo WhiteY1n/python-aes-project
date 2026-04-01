@@ -31,6 +31,21 @@ class TestKeySchedule(unittest.TestCase):
         round_keys = key_expansion(master_key)
         self.assertEqual(round_keys[0], master_key)
 
+    def test_key_expansion_aes_192_round_count(self) -> None:
+        key_192 = bytes.fromhex("000102030405060708090a0b0c0d0e0f1011121314151617")
+        round_keys = key_expansion(key_192)
+        self.assertEqual(len(round_keys), 13)
+        self.assertTrue(all(len(round_key) == 16 for round_key in round_keys))
+
+    def test_key_expansion_aes_256_round_count(self) -> None:
+        key_256 = bytes.fromhex(
+            "000102030405060708090a0b0c0d0e0f"
+            "101112131415161718191a1b1c1d1e1f",
+        )
+        round_keys = key_expansion(key_256)
+        self.assertEqual(len(round_keys), 15)
+        self.assertTrue(all(len(round_key) == 16 for round_key in round_keys))
+
     def test_expand_key_alias(self) -> None:
         master_key = bytes.fromhex("000102030405060708090a0b0c0d0e0f")
         self.assertEqual(expand_key(master_key), key_expansion(master_key))

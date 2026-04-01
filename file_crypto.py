@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from constants import AES128_KEY_SIZE, BLOCK_SIZE
+from constants import BLOCK_SIZE, VALID_AES_KEY_SIZES
 from modes import cbc_decrypt, cbc_encrypt
 
 DEFAULT_CHUNK_SIZE: int = 64 * 1024
@@ -33,8 +33,8 @@ def encrypt_file_to_bytes(
     iv: bytes,
 ) -> bytes:
     """Read binary file and return AES-CBC encrypted bytes."""
-    if len(key) != AES128_KEY_SIZE:
-        raise ValueError(f"AES-128 key must be {AES128_KEY_SIZE} bytes")
+    if len(key) not in VALID_AES_KEY_SIZES:
+        raise ValueError("AES key must be 16, 24, or 32 bytes")
     if len(iv) != BLOCK_SIZE:
         raise ValueError(f"IV must be {BLOCK_SIZE} bytes")
 
@@ -49,8 +49,8 @@ def decrypt_bytes_to_file(
     iv: bytes,
 ) -> None:
     """Decrypt AES-CBC bytes and write plaintext to binary file."""
-    if len(key) != AES128_KEY_SIZE:
-        raise ValueError(f"AES-128 key must be {AES128_KEY_SIZE} bytes")
+    if len(key) not in VALID_AES_KEY_SIZES:
+        raise ValueError("AES key must be 16, 24, or 32 bytes")
     if len(iv) != BLOCK_SIZE:
         raise ValueError(f"IV must be {BLOCK_SIZE} bytes")
 

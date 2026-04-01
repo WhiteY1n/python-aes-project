@@ -2,7 +2,7 @@
 
 Project demo truyền file bằng Python standard library, dùng:
 
-- AES-128
+- AES-128 / AES-192 / AES-256
 - CBC mode
 - PKCS#7 padding
 - TCP file transfer
@@ -18,7 +18,7 @@ Project demo truyền file bằng Python standard library, dùng:
 - `tests/`: unit tests
 ## Sau khi pull chạy 2 lệnh
 - python -m venv .venv
--  source /../python-aes-project/.venv/Scripts/activate
+- source .venv/Scripts/activate
 ## Cách chạy nhanh
 
 Mở terminal tại thư mục project.
@@ -74,7 +74,10 @@ Preset mặc định ở tab Send:
 
 ## Key/IV hợp lệ
 
-- `key-hex`: 32 ký tự hex (16 byte), ví dụ: `00112233445566778899aabbccddeeff`
+- `key-hex`: 32 / 48 / 64 ký tự hex (16 / 24 / 32 byte), ví dụ:
+	- AES-128: `00112233445566778899aabbccddeeff`
+	- AES-192: `000102030405060708090a0b0c0d0e0f1011121314151617`
+	- AES-256: `000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f`
 - `iv-hex`: 32 ký tự hex (16 byte), ví dụ: `0102030405060708090a0b0c0d0e0f10`
 
 Chỉ dùng ký tự `0-9`, `a-f`, `A-F`.

@@ -176,11 +176,15 @@ def encrypt_block(
     round_keys = key_expansion(effective_key)
     state = bytes_to_state(block)
 
-    # Initial whitening step before the 10 AES rounds.
+    nr = len(round_keys) - 1
+    if nr not in (10, 12, 14):
+        raise ValueError("expanded key produced unsupported round count")
+
+    # Initial whitening step before the AES rounds.
     add_round_key(state, round_keys[0])
 
-    # Rounds 1..9 include MixColumns.
-    for round_index in range(1, 10):
+    # Rounds 1..Nr-1 include MixColumns.
+    for round_index in range(1, nr):
         sub_bytes(state)
         shift_rows(state)
         mix_columns(state)
@@ -189,7 +193,7 @@ def encrypt_block(
     # Final round omits MixColumns.
     sub_bytes(state)
     shift_rows(state)
-    add_round_key(state, round_keys[10])
+    add_round_key(state, round_keys[nr])
 
     return state_to_bytes(state)
 
@@ -218,10 +222,14 @@ def decrypt_block(
     round_keys = key_expansion(effective_key)
     state = bytes_to_state(block)
 
-    # Start from the last round key and invert operations in reverse order.
-    add_round_key(state, round_keys[10])
+    nr = len(round_keys) - 1
+    if nr not in (10, 12, 14):
+        raise ValueError("expanded key produced unsupported round count")
 
-    for round_index in range(9, 0, -1):
+    # Start from the last round key and invert operations in reverse order.
+    add_round_key(state, round_keys[nr])
+
+    for round_index in range(nr - 1, 0, -1):
         inv_shift_rows(state)
         inv_sub_bytes(state)
         add_round_key(state, round_keys[round_index])

@@ -1,18 +1,28 @@
-"""AES-128 key schedule helpers."""
+"""AES key schedule helpers for 128/192/256-bit keys."""
 
 from __future__ import annotations
 
-from constants import AES128_KEY_SIZE, NB, NK, NR, RCON, S_BOX
+from constants import NB, RCON, S_BOX, VALID_AES_KEY_SIZES
 
 Word = bytes
 
 
 def validate_key_size(key: bytes) -> None:
-    """Validate that key size matches the AES-128 public API requirement."""
-    if len(key) != AES128_KEY_SIZE:
+    """Validate that key size matches AES-128/192/256 requirements."""
+    if len(key) not in VALID_AES_KEY_SIZES:
+        allowed_sizes = ", ".join(str(size) for size in VALID_AES_KEY_SIZES)
         raise ValueError(
-            f"AES-128 key must be {AES128_KEY_SIZE} bytes, got {len(key)}",
+            f"AES key must be one of [{allowed_sizes}] bytes, got {len(key)}",
         )
+
+
+def _nr_from_nk(nk: int) -> int:
+    """Map Nk words to AES number of rounds."""
+    mapping = {4: 10, 6: 12, 8: 14}
+    try:
+        return mapping[nk]
+    except KeyError as error:  # pragma: no cover - guarded by validate_key_size
+        raise ValueError(f"unsupported Nk value: {nk}") from error
 
 
 def rot_word(word: bytes) -> bytes:
@@ -39,7 +49,7 @@ def key_expansion(
     *,
     master_key: bytes | None = None,
 ) -> list[bytes]:
-    """Expand a 16-byte AES-128 key into 11 round keys of 16 bytes.
+    """Expand AES key into round keys of 16 bytes.
 
     Accepts either `key` (preferred) or `master_key` (legacy keyword).
     """
@@ -54,25 +64,31 @@ def key_expansion(
 
     validate_key_size(effective_key)
 
-    # Start from the original 4 key words (AES-128 uses NK=4).
+    nk = len(effective_key) // 4
+    nr = _nr_from_nk(nk)
+
+    # Start from original key words.
     words: list[Word] = [
         effective_key[index : index + 4]
-        for index in range(0, AES128_KEY_SIZE, 4)
+        for index in range(0, len(effective_key), 4)
     ]
 
-    total_words = NB * (NR + 1)
-    for index in range(NK, total_words):
+    total_words = NB * (nr + 1)
+    for index in range(nk, total_words):
         temp = words[index - 1]
 
-        # Every NK words, apply the schedule core: RotWord, SubWord, and Rcon.
-        if index % NK == 0:
-            rcon_word = bytes((RCON[index // NK], 0x00, 0x00, 0x00))
+        # Every Nk words, apply schedule core: RotWord, SubWord, and Rcon.
+        if index % nk == 0:
+            rcon_word = bytes((RCON[index // nk], 0x00, 0x00, 0x00))
             temp = _xor_words(sub_word(rot_word(temp)), rcon_word)
+        elif nk > 6 and index % nk == 4:
+            # AES-256 applies an extra SubWord halfway through each Nk group.
+            temp = sub_word(temp)
 
-        words.append(_xor_words(words[index - NK], temp))
+        words.append(_xor_words(words[index - nk], temp))
 
     round_keys: list[bytes] = []
-    for round_index in range(NR + 1):
+    for round_index in range(nr + 1):
         start = round_index * NB
         round_key = b"".join(words[start : start + NB])
         round_keys.append(round_key)

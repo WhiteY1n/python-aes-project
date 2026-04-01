@@ -106,7 +106,12 @@ class AESGuiApp(tk.Tk):
             pady=6,
         )
 
-        ttk.Label(parent, text="Key hex (32 chars)").grid(row=1, column=0, sticky=tk.W, pady=6)
+        ttk.Label(parent, text="Key hex (32/48/64 chars)").grid(
+            row=1,
+            column=0,
+            sticky=tk.W,
+            pady=6,
+        )
         ttk.Entry(parent, textvariable=self._send_key_var).grid(
             row=1,
             column=1,
@@ -158,7 +163,12 @@ class AESGuiApp(tk.Tk):
             pady=6,
         )
 
-        ttk.Label(parent, text="Key hex (32 chars)").grid(row=1, column=0, sticky=tk.W, pady=6)
+        ttk.Label(parent, text="Key hex (32/48/64 chars)").grid(
+            row=1,
+            column=0,
+            sticky=tk.W,
+            pady=6,
+        )
         ttk.Entry(parent, textvariable=self._decrypt_key_var).grid(
             row=1,
             column=1,
@@ -422,7 +432,7 @@ class AESGuiApp(tk.Tk):
             key = self._try_parse_receiver_key()
             if key is None:
                 self._append_log(
-                    "[receiver] Skip auto-decrypt: set valid key in Decrypt tab (32 hex chars)."
+                    "[receiver] Skip auto-decrypt: set valid key in Decrypt tab (32/48/64 hex chars)."
                 )
                 return
 

@@ -26,7 +26,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--key-hex",
         type=parse_hex_key,
         required=True,
-        help="AES-128 key in hex (exactly 32 hex chars)",
+        help="AES key in hex (32/48/64 hex chars for 128/192/256-bit)",
     )
     return parser
 

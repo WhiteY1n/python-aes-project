@@ -60,6 +60,39 @@ class TestFileCrypto(unittest.TestCase):
 
             self.assertEqual(output_path.read_bytes(), plaintext)
 
+    def test_encrypt_then_decrypt_roundtrip_aes_192(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_path = Path(tmp_dir) / "plain192.bin"
+            output_path = Path(tmp_dir) / "restored192.bin"
+            plaintext = b"AES-192 file crypto roundtrip"
+            input_path.write_bytes(plaintext)
+
+            key = bytes.fromhex("000102030405060708090a0b0c0d0e0f1011121314151617")
+            iv = bytes.fromhex("0102030405060708090a0b0c0d0e0f10")
+
+            ciphertext = encrypt_file_to_bytes(str(input_path), key=key, iv=iv)
+            decrypt_bytes_to_file(ciphertext, str(output_path), key=key, iv=iv)
+
+            self.assertEqual(output_path.read_bytes(), plaintext)
+
+    def test_encrypt_then_decrypt_roundtrip_aes_256(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            input_path = Path(tmp_dir) / "plain256.bin"
+            output_path = Path(tmp_dir) / "restored256.bin"
+            plaintext = b"AES-256 file crypto roundtrip"
+            input_path.write_bytes(plaintext)
+
+            key = bytes.fromhex(
+                "000102030405060708090a0b0c0d0e0f"
+                "101112131415161718191a1b1c1d1e1f",
+            )
+            iv = bytes.fromhex("0102030405060708090a0b0c0d0e0f10")
+
+            ciphertext = encrypt_file_to_bytes(str(input_path), key=key, iv=iv)
+            decrypt_bytes_to_file(ciphertext, str(output_path), key=key, iv=iv)
+
+            self.assertEqual(output_path.read_bytes(), plaintext)
+
 
 if __name__ == "__main__":
     unittest.main()

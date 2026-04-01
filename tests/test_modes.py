@@ -29,6 +29,25 @@ class TestModes(unittest.TestCase):
         restored = cbc_decrypt(ciphertext=ciphertext, key=key, iv=iv)
         self.assertEqual(restored, plaintext)
 
+    def test_cbc_roundtrip_aes_192(self) -> None:
+        key = bytes.fromhex("000102030405060708090a0b0c0d0e0f1011121314151617")
+        iv = bytes.fromhex("0102030405060708090a0b0c0d0e0f10")
+        plaintext = b"CBC test with AES-192 key size support"
+        ciphertext = cbc_encrypt(data=plaintext, key=key, iv=iv)
+        restored = cbc_decrypt(ciphertext=ciphertext, key=key, iv=iv)
+        self.assertEqual(restored, plaintext)
+
+    def test_cbc_roundtrip_aes_256(self) -> None:
+        key = bytes.fromhex(
+            "000102030405060708090a0b0c0d0e0f"
+            "101112131415161718191a1b1c1d1e1f",
+        )
+        iv = bytes.fromhex("0102030405060708090a0b0c0d0e0f10")
+        plaintext = b"CBC test with AES-256 key size support"
+        ciphertext = cbc_encrypt(data=plaintext, key=key, iv=iv)
+        restored = cbc_decrypt(ciphertext=ciphertext, key=key, iv=iv)
+        self.assertEqual(restored, plaintext)
+
     def test_cbc_decrypt_rejects_non_block_length(self) -> None:
         with self.assertRaises(ValueError):
             cbc_decrypt(

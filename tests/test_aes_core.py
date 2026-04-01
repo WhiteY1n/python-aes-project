@@ -87,6 +87,36 @@ class TestAESCore(unittest.TestCase):
         expected_plaintext = bytes.fromhex("00112233445566778899aabbccddeeff")
         self.assertEqual(decrypt_block(ciphertext, master_key), expected_plaintext)
 
+    def test_encrypt_block_known_vector_aes_192(self) -> None:
+        key_192 = bytes.fromhex("000102030405060708090a0b0c0d0e0f1011121314151617")
+        plaintext = bytes.fromhex("00112233445566778899aabbccddeeff")
+        expected_ciphertext = bytes.fromhex("dda97ca4864cdfe06eaf70a0ec0d7191")
+        self.assertEqual(encrypt_block(plaintext, key_192), expected_ciphertext)
+
+    def test_encrypt_block_known_vector_aes_256(self) -> None:
+        key_256 = bytes.fromhex(
+            "000102030405060708090a0b0c0d0e0f"
+            "101112131415161718191a1b1c1d1e1f",
+        )
+        plaintext = bytes.fromhex("00112233445566778899aabbccddeeff")
+        expected_ciphertext = bytes.fromhex("8ea2b7ca516745bfeafc49904b496089")
+        self.assertEqual(encrypt_block(plaintext, key_256), expected_ciphertext)
+
+    def test_decrypt_block_known_vector_aes_192(self) -> None:
+        key_192 = bytes.fromhex("000102030405060708090a0b0c0d0e0f1011121314151617")
+        ciphertext = bytes.fromhex("dda97ca4864cdfe06eaf70a0ec0d7191")
+        expected_plaintext = bytes.fromhex("00112233445566778899aabbccddeeff")
+        self.assertEqual(decrypt_block(ciphertext, key_192), expected_plaintext)
+
+    def test_decrypt_block_known_vector_aes_256(self) -> None:
+        key_256 = bytes.fromhex(
+            "000102030405060708090a0b0c0d0e0f"
+            "101112131415161718191a1b1c1d1e1f",
+        )
+        ciphertext = bytes.fromhex("8ea2b7ca516745bfeafc49904b496089")
+        expected_plaintext = bytes.fromhex("00112233445566778899aabbccddeeff")
+        self.assertEqual(decrypt_block(ciphertext, key_256), expected_plaintext)
+
     def test_encrypt_then_decrypt_block_roundtrip(self) -> None:
         master_key = bytes.fromhex("000102030405060708090a0b0c0d0e0f")
         plaintext = bytes.fromhex("00112233445566778899aabbccddeeff")
