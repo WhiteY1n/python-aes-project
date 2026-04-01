@@ -1,4 +1,4 @@
-"""CLI entry point for receiver workflow."""
+"""Diem vao CLI cho luong receiver."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from network_receiver import start_receiver
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
-    """Build receiver CLI argument parser."""
+    """Khoi tao bo parser tham so CLI cho receiver."""
     parser = argparse.ArgumentParser(
         description="Receive encrypted file and decrypt with AES skeleton flow.",
     )
@@ -32,7 +32,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run receiver workflow."""
+    """Chay luong receiver."""
     parser = build_argument_parser()
     args = parser.parse_args(argv)
 
@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
             output_dir=str(args.out_dir),
             key=args.key_hex,
         )
-    except Exception as error:  # pragma: no cover - CLI guard path
+    except Exception as error:  # pragma: no cover - nhanh bao ve cho CLI
         print(f"Receiver failed: {error}")
         return 1
 

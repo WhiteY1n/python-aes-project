@@ -1,4 +1,4 @@
-"""Tests for mode skeleton functions."""
+"""Bo test cho cac ham mode."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from modes import cbc_decrypt, cbc_encrypt, xor_bytes
 
 
 class TestModes(unittest.TestCase):
-    """Validate basic mode-level contracts."""
+    """Kiem tra cac hop dong co ban o tang mode."""
 
     def test_xor_bytes(self) -> None:
         self.assertEqual(xor_bytes(b"\x0f\xf0", b"\xf0\x0f"), b"\xff\xff")

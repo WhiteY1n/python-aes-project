@@ -1,4 +1,4 @@
-"""Receiver helper for one-shot AES-CBC file transfer over TCP."""
+"""Ham ho tro receiver cho luong truyen file AES-CBC mot lan qua TCP."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ _SUFFIX_STRUCT = struct.Struct("!Q16sQ")
 
 
 def start_receiver(host: str, port: int, output_dir: str, key: bytes) -> None:
-    """Listen once on TCP, receive one packet, decrypt, and write output file."""
+    """Lang nghe TCP mot lan, nhan packet, giai ma va ghi file dau ra."""
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -37,7 +37,7 @@ def start_receiver(host: str, port: int, output_dir: str, key: bytes) -> None:
         with connection:
             connection.settimeout(DEFAULT_SOCKET_TIMEOUT)
 
-            # Read fixed prefix to know file name length.
+            # Doc prefix co do dai co dinh de biet do dai ten file.
             prefix = recv_exact(connection, _PREFIX_STRUCT.size)
             _magic, _version, filename_length = _PREFIX_STRUCT.unpack(prefix)
 

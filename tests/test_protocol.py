@@ -1,4 +1,4 @@
-"""Tests for protocol skeleton behavior."""
+"""Bo test cho hanh vi protocol."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from protocol import (
 
 
 class TestProtocol(unittest.TestCase):
-    """Validate protocol framing contracts."""
+    """Kiem tra hop dong dong khung du lieu protocol."""
 
     def test_build_and_parse_packet(self) -> None:
         file_name = "demo.txt"

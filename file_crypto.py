@@ -1,4 +1,4 @@
-"""File-level encryption/decryption workflow skeleton."""
+"""Luong xu ly ma hoa/giai ma du lieu o muc file."""
 
 from __future__ import annotations
 
@@ -13,14 +13,14 @@ DEFAULT_CHUNK_SIZE: int = 64 * 1024
 
 @dataclass(frozen=True)
 class FileCryptoConfig:
-    """Runtime options for file encryption and decryption."""
+    """Tuy chon khi chay cho ma hoa va giai ma file."""
 
     chunk_size: int = DEFAULT_CHUNK_SIZE
     overwrite: bool = False
 
 
 def normalize_mode(mode: str) -> str:
-    """Normalize mode value to uppercase and validate CBC-only policy."""
+    """Chuan hoa mode thanh in hoa va chi chap nhan CBC."""
     normalized = mode.strip().upper()
     if normalized != "CBC":
         raise ValueError(f"Unsupported cipher mode: {mode}. This project supports CBC only.")
@@ -32,7 +32,7 @@ def encrypt_file_to_bytes(
     key: bytes,
     iv: bytes,
 ) -> bytes:
-    """Read binary file and return AES-CBC encrypted bytes."""
+    """Doc file nhi phan va tra ve bytes da ma hoa AES-CBC."""
     if len(key) not in VALID_AES_KEY_SIZES:
         raise ValueError("AES key must be 16, 24, or 32 bytes")
     if len(iv) != BLOCK_SIZE:
@@ -48,7 +48,7 @@ def decrypt_bytes_to_file(
     key: bytes,
     iv: bytes,
 ) -> None:
-    """Decrypt AES-CBC bytes and write plaintext to binary file."""
+    """Giai ma bytes AES-CBC va ghi plaintext ra file nhi phan."""
     if len(key) not in VALID_AES_KEY_SIZES:
         raise ValueError("AES key must be 16, 24, or 32 bytes")
     if len(iv) != BLOCK_SIZE:
@@ -59,7 +59,7 @@ def decrypt_bytes_to_file(
 
 
 def read_binary_file(path: str) -> bytes:
-    """Read entire file as raw bytes."""
+    """Doc toan bo file duoi dang bytes thuan."""
     try:
         with open(path, "rb") as file_obj:
             return file_obj.read()
@@ -70,7 +70,7 @@ def read_binary_file(path: str) -> bytes:
 
 
 def write_binary_file(path: str, data: bytes) -> None:
-    """Write raw bytes to file."""
+    """Ghi bytes thuan vao file."""
     try:
         with open(path, "wb") as file_obj:
             file_obj.write(data)
@@ -85,7 +85,7 @@ def encrypt_file(
     iv: bytes,
     config: FileCryptoConfig,
 ) -> None:
-    """Backward-compatible file-to-file encryption helper."""
+    """Ham ma hoa file-to-file de giu tuong thich nguoc."""
     if not input_path.exists():
         raise FileNotFoundError(input_path)
     if output_path.exists() and not config.overwrite:
@@ -102,7 +102,7 @@ def decrypt_file(
     iv: bytes,
     config: FileCryptoConfig,
 ) -> None:
-    """Backward-compatible file-to-file decryption helper."""
+    """Ham giai ma file-to-file de giu tuong thich nguoc."""
     if not input_path.exists():
         raise FileNotFoundError(input_path)
     if output_path.exists() and not config.overwrite:

@@ -1,4 +1,4 @@
-"""Tkinter desktop GUI for AES file transfer workflows."""
+"""GUI desktop Tkinter cho luong truyen file AES."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ RECEIVER_HOST = "0.0.0.0"
 RECEIVER_PORT = 9000
 RECEIVER_OUTPUT_DIR = Path("received")
 
-# Random 128-bit values for quick secure demos; users can still edit fields manually.
+# Gia tri 128-bit ngau nhien de demo nhanh; nguoi dung van co the sua tay.
 SEND_PRESET_1_KEY_HEX = "08b80c4754d25a828ab0744bf50a4839"
 SEND_PRESET_1_IV_HEX = "12927c14feb1c98b2fe14c75f63ad7f0"
 SEND_PRESET_2_KEY_HEX = "05a8a22e67cc3baf0fc441f26c16e7d1"
@@ -31,7 +31,7 @@ SEND_PRESET_2_IV_HEX = "d789b266a64955f0cb1fe07649d836e3"
 
 
 class AESGuiApp(tk.Tk):
-    """Desktop app that provides sender and decrypt tools."""
+    """Ung dung desktop cung cap cong cu gui va giai ma."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -492,7 +492,7 @@ class AESGuiApp(tk.Tk):
 
 
 def main() -> int:
-    """Run Tkinter application."""
+    """Chay ung dung Tkinter."""
     app = AESGuiApp()
     app.mainloop()
     return 0

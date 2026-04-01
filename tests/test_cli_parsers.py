@@ -1,4 +1,4 @@
-"""Tests for CLI key/IV hex parsing helpers."""
+"""Bo test cho ham parse key/IV dang hex tren CLI."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from cli_parsers import parse_hex_iv, parse_hex_key
 
 
 class TestCliParsers(unittest.TestCase):
-    """Validate key/IV parsing and friendly validation errors."""
+    """Kiem tra parse key/IV va thong bao loi than thien."""
 
     def test_parse_hex_key_valid_128(self) -> None:
         key = parse_hex_key("00112233445566778899aabbccddeeff")

@@ -1,1 +1,1 @@
-"""Test package for AES file transfer skeleton."""
+"""Goi test cho du an truyen file AES."""

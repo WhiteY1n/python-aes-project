@@ -1,4 +1,4 @@
-"""Tests for file crypto workflow skeleton."""
+"""Bo test cho luong file crypto."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from file_crypto import (
 
 
 class TestFileCrypto(unittest.TestCase):
-    """Validate high-level file crypto contracts."""
+    """Kiem tra hop dong o tang xu ly file crypto."""
 
     def test_read_write_binary_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:

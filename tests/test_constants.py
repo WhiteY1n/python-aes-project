@@ -1,4 +1,4 @@
-"""Basic tests for constant definitions."""
+"""Bo test co ban cho cac hang so."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import constants
 
 
 class TestConstants(unittest.TestCase):
-    """Validate expected constant values."""
+    """Kiem tra gia tri hang so co dung nhu ky vong."""
 
     def test_block_size(self) -> None:
         self.assertEqual(constants.BLOCK_SIZE, 16)

@@ -1,4 +1,4 @@
-"""Tests for PKCS#7 padding helpers."""
+"""Bo test cho ham ho tro PKCS#7."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from padding import pkcs7_pad, pkcs7_unpad
 
 
 class TestPadding(unittest.TestCase):
-    """Validate pad/unpad behavior."""
+    """Kiem tra hanh vi them/bo dem."""
 
     def test_pad_unpad_empty(self) -> None:
         original = b""

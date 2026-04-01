@@ -1,4 +1,4 @@
-"""Tests for key schedule skeleton."""
+"""Bo test cho key schedule."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from key_schedule import expand_key, key_expansion, rot_word, sub_word, validate
 
 
 class TestKeySchedule(unittest.TestCase):
-    """Validate key schedule entry points."""
+    """Kiem tra cac diem vao chinh cua key schedule."""
 
     def test_validate_key_size_rejects_invalid_length(self) -> None:
         with self.assertRaises(ValueError):

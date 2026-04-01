@@ -1,4 +1,4 @@
-"""CLI parsing helpers for AES key/IV hex inputs."""
+"""Ham ho tro parse tham so CLI cho key/IV dang hex."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ def _parse_fixed_hex(
     field_name: str,
     expected_bytes: int,
 ) -> bytes:
-    """Parse and validate a fixed-size hex string into bytes."""
+    """Parse va kiem tra chuoi hex co do dai co dinh thanh bytes."""
     normalized = value.strip()
     expected_hex_chars = expected_bytes * 2
 
@@ -46,7 +46,7 @@ def _parse_fixed_hex(
 
 
 def parse_hex_key(value: str) -> bytes:
-    """Parse AES key from CLI hex string for 128/192/256-bit lengths."""
+    """Parse key AES tu chuoi hex CLI cho 128/192/256-bit."""
     normalized = value.strip()
     allowed_hex_lengths = {size * 2 for size in VALID_AES_KEY_SIZES}
 
@@ -80,7 +80,7 @@ def parse_hex_key(value: str) -> bytes:
 
 
 def parse_hex_iv(value: str) -> bytes:
-    """Parse CBC IV from CLI hex string (32 hex chars -> 16 bytes)."""
+    """Parse IV CBC tu chuoi hex CLI (32 ky tu hex -> 16 byte)."""
     return _parse_fixed_hex(
         value=value,
         field_name="CBC IV",

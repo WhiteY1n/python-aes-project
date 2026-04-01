@@ -1,4 +1,4 @@
-"""CLI entry point for sender workflow."""
+"""Diem vao CLI cho luong sender."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from network_sender import send_file
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
-    """Build sender CLI argument parser."""
+    """Khoi tao bo parser tham so CLI cho sender."""
     parser = argparse.ArgumentParser(
         description="Encrypt a file with AES skeleton flow, then send it to receiver.",
     )
@@ -33,7 +33,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run sender workflow."""
+    """Chay luong sender."""
     parser = build_argument_parser()
     args = parser.parse_args(argv)
 
@@ -45,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
             key=args.key_hex,
             iv=args.iv_hex,
         )
-    except Exception as error:  # pragma: no cover - CLI guard path
+    except Exception as error:  # pragma: no cover - nhanh bao ve cho CLI
         print(f"Sender failed: {error}")
         return 1
 

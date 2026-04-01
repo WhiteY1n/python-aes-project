@@ -1,4 +1,4 @@
-"""Tests for receiver networking skeleton."""
+"""Bo test cho luong networking phia receiver."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from protocol import build_packet
 
 
 class TestNetworkReceiver(unittest.TestCase):
-    """Validate receiver API contracts."""
+    """Kiem tra hop dong API cua receiver."""
 
     def test_start_receiver_receives_and_writes_file(self) -> None:
         key = bytes.fromhex("00112233445566778899aabbccddeeff")

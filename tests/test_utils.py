@@ -1,4 +1,4 @@
-"""Tests for utility helpers."""
+"""Bo test cho cac ham tien ich."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from utils import chunk_reader, random_bytes, secure_compare, xor_bytes
 
 
 class TestUtils(unittest.TestCase):
-    """Unit tests for utility functions."""
+    """Unit test cho cac ham tien ich."""
 
     def test_xor_bytes(self) -> None:
         result = xor_bytes(b"\x0f\xf0", b"\xf0\x0f")

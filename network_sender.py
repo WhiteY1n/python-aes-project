@@ -1,4 +1,4 @@
-"""Sender helper for one-shot AES-CBC file transfer over TCP."""
+"""Ham ho tro sender cho luong truyen file AES-CBC mot lan qua TCP."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ DEFAULT_SEND_TIMEOUT: float = 120.0
 
 
 def _resolve_preferred_host(host: str) -> str:
-    """Resolve hostname and prefer IPv4 target for IPv4-only receiver binding."""
+    """Phan giai host va uu tien dia chi IPv4 khi receiver bind IPv4."""
     try:
         ipv4_infos = socket.getaddrinfo(host, None, family=socket.AF_INET, type=socket.SOCK_STREAM)
     except socket.gaierror:
@@ -26,7 +26,7 @@ def _resolve_preferred_host(host: str) -> str:
 
 
 def send_file(host: str, port: int, input_path: str, key: bytes, iv: bytes) -> None:
-    """Read file, encrypt with AES-CBC, build packet, and send over TCP."""
+    """Doc file, ma hoa AES-CBC, dong goi packet va gui qua TCP."""
     path_obj = Path(input_path)
     if not path_obj.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")

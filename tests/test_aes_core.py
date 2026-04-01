@@ -1,4 +1,4 @@
-"""Tests for AES core skeleton."""
+"""Bo test cho phan loi AES core."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from aes_core import (
 
 
 class TestAESCore(unittest.TestCase):
-    """Validate AES core function contracts."""
+    """Kiem tra hop dong ham cua AES core."""
 
     def test_bytes_to_state_and_back_roundtrip(self) -> None:
         block = bytes(range(16))

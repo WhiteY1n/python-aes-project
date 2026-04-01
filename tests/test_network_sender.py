@@ -1,4 +1,4 @@
-"""Tests for sender networking skeleton."""
+"""Bo test cho luong networking phia sender."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class _FakeConnection:
 
 
 class TestNetworkSender(unittest.TestCase):
-    """Validate sender API contracts."""
+    """Kiem tra hop dong API cua sender."""
 
     def test_send_file_requires_existing_input(self) -> None:
         with self.assertRaises(FileNotFoundError):

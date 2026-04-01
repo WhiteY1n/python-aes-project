@@ -1,4 +1,4 @@
-"""Core AES block encryption/decryption skeleton."""
+"""Loi ma hoa/giai ma AES theo tung block 16 byte."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ State: TypeAlias = list[list[int]]
 
 
 def _validate_state_shape(state: State) -> None:
-    """Validate that state is a 4x4 matrix of byte values."""
+    """Kiem tra state co dung ma tran 4x4 gia tri byte hay khong."""
     if len(state) != 4 or any(len(row) != 4 for row in state):
         raise ValueError("state must be a 4x4 matrix")
 
@@ -22,11 +22,12 @@ def _validate_state_shape(state: State) -> None:
 
 
 def bytes_to_state(block: bytes) -> State:
-    """Convert a 16-byte block into an AES state matrix."""
+    """Chuyen block 16 byte thanh state AES (ma tran 4x4)."""
     if len(block) != BLOCK_SIZE:
         raise ValueError(f"AES block must be {BLOCK_SIZE} bytes")
 
-    # AES state uses column-major ordering: state[row][col] = block[col * 4 + row].
+    # AES nap du lieu theo cot, khong theo hang.
+    # Vi du: block[0:4] se lap day cot dau tien tu row 0..3.
     state: State = [[0] * 4 for _ in range(4)]
     for col in range(4):
         for row in range(4):
@@ -35,9 +36,10 @@ def bytes_to_state(block: bytes) -> State:
 
 
 def state_to_bytes(state: State) -> bytes:
-    """Convert an AES state matrix back to 16 bytes."""
+    """Chuyen state AES nguoc lai ve block 16 byte."""
     _validate_state_shape(state)
 
+    # Dao nguoc bytes_to_state(): trai phang theo tung cot.
     output = bytearray(BLOCK_SIZE)
     for col in range(4):
         for row in range(4):
@@ -46,7 +48,7 @@ def state_to_bytes(state: State) -> bytes:
 
 
 def xtime(a: int) -> int:
-    """Multiply a byte by x in GF(2^8) with AES reduction polynomial."""
+    """Nhan byte voi x trong GF(2^8) theo da thuc rut gon cua AES."""
     if not 0 <= a <= 0xFF:
         raise ValueError("a must be in range 0..255")
 
@@ -57,7 +59,7 @@ def xtime(a: int) -> int:
 
 
 def gmul(a: int, b: int) -> int:
-    """Multiply two bytes in GF(2^8)."""
+    """Nhan hai byte trong GF(2^8)."""
     if not 0 <= a <= 0xFF or not 0 <= b <= 0xFF:
         raise ValueError("a and b must be in range 0..255")
 
@@ -65,7 +67,8 @@ def gmul(a: int, b: int) -> int:
     multiplicand = a
     multiplier = b
 
-    # Russian peasant multiplication over GF(2^8).
+    # Nhan theo bit trong GF(2^8): neu bit hien tai cua multiplier = 1
+    # thi xor multiplicand vao ket qua, sau do xtime() cho bit tiep theo.
     for _ in range(8):
         if multiplier & 1:
             result ^= multiplicand
@@ -76,18 +79,19 @@ def gmul(a: int, b: int) -> int:
 
 
 def add_round_key(state: State, round_key: bytes) -> None:
-    """XOR current state with a 16-byte round key in-place."""
+    """XOR state hien tai voi round key 16 byte (in-place)."""
     _validate_state_shape(state)
     if len(round_key) != BLOCK_SIZE:
         raise ValueError(f"round key must be {BLOCK_SIZE} bytes")
 
+    # Round key duoc map vao state cung layout theo cot.
     for col in range(4):
         for row in range(4):
             state[row][col] ^= round_key[col * 4 + row]
 
 
 def sub_bytes(state: State) -> None:
-    """Apply S-Box substitution to each state byte in-place."""
+    """Thay the tung byte bang S-Box (in-place)."""
     _validate_state_shape(state)
 
     for row in range(4):
@@ -96,7 +100,7 @@ def sub_bytes(state: State) -> None:
 
 
 def inv_sub_bytes(state: State) -> None:
-    """Apply inverse S-Box substitution to each state byte in-place."""
+    """Thay the tung byte bang inverse S-Box (in-place)."""
     _validate_state_shape(state)
 
     for row in range(4):
@@ -105,23 +109,25 @@ def inv_sub_bytes(state: State) -> None:
 
 
 def shift_rows(state: State) -> None:
-    """Rotate state rows left by row index in-place."""
+    """Xoay trai cac hang theo chi so hang (in-place)."""
     _validate_state_shape(state)
 
+    # Hang 0 giu nguyen; hang 1/2/3 xoay trai lan luot 1/2/3 buoc.
     for row in range(1, 4):
         state[row] = state[row][row:] + state[row][:row]
 
 
 def inv_shift_rows(state: State) -> None:
-    """Rotate state rows right by row index in-place."""
+    """Xoay phai cac hang theo chi so hang (in-place)."""
     _validate_state_shape(state)
 
+    # Dao nguoc shift_rows: xoay phai theo chi so hang.
     for row in range(1, 4):
         state[row] = state[row][-row:] + state[row][:-row]
 
 
 def mix_columns(state: State) -> None:
-    """Apply MixColumns transformation to each state column in-place."""
+    """Ap dung MixColumns cho tung cot cua state (in-place)."""
     _validate_state_shape(state)
 
     for col in range(4):
@@ -130,6 +136,7 @@ def mix_columns(state: State) -> None:
         s2 = state[2][col]
         s3 = state[3][col]
 
+        # Nhan ma tran theo dac ta AES tren GF(2^8).
         state[0][col] = gmul(s0, 0x02) ^ gmul(s1, 0x03) ^ s2 ^ s3
         state[1][col] = s0 ^ gmul(s1, 0x02) ^ gmul(s2, 0x03) ^ s3
         state[2][col] = s0 ^ s1 ^ gmul(s2, 0x02) ^ gmul(s3, 0x03)
@@ -137,7 +144,7 @@ def mix_columns(state: State) -> None:
 
 
 def inv_mix_columns(state: State) -> None:
-    """Apply inverse MixColumns transformation to each state column in-place."""
+    """Ap dung inverse MixColumns cho tung cot cua state (in-place)."""
     _validate_state_shape(state)
 
     for col in range(4):
@@ -146,6 +153,7 @@ def inv_mix_columns(state: State) -> None:
         s2 = state[2][col]
         s3 = state[3][col]
 
+        # Ma tran nghich dao cho cac vong giai ma.
         state[0][col] = gmul(s0, 0x0E) ^ gmul(s1, 0x0B) ^ gmul(s2, 0x0D) ^ gmul(s3, 0x09)
         state[1][col] = gmul(s0, 0x09) ^ gmul(s1, 0x0E) ^ gmul(s2, 0x0B) ^ gmul(s3, 0x0D)
         state[2][col] = gmul(s0, 0x0D) ^ gmul(s1, 0x09) ^ gmul(s2, 0x0E) ^ gmul(s3, 0x0B)
@@ -158,9 +166,9 @@ def encrypt_block(
     *,
     master_key: bytes | None = None,
 ) -> bytes:
-    """Encrypt one 16-byte block and return ciphertext bytes.
+    """Ma hoa mot block 16 byte va tra ve ciphertext.
 
-    Accepts either `key` (preferred) or `master_key` (legacy keyword).
+    Chap nhan `key` (uu tien) hoac `master_key` (de tuong thich cu).
     """
     if len(block) != BLOCK_SIZE:
         raise ValueError(f"AES block must be {BLOCK_SIZE} bytes")
@@ -170,9 +178,10 @@ def encrypt_block(
         raise ValueError("provide only one of key or master_key")
 
     effective_key = key if key is not None else master_key
-    if effective_key is None:  # pragma: no cover - defensive guard
+    if effective_key is None:  # pragma: no cover - chan phong ve
         raise ValueError("key is required")
 
+    # key_expansion tra ve Nr+1 round key (Nr phu thuoc do dai key).
     round_keys = key_expansion(effective_key)
     state = bytes_to_state(block)
 
@@ -180,17 +189,17 @@ def encrypt_block(
     if nr not in (10, 12, 14):
         raise ValueError("expanded key produced unsupported round count")
 
-    # Initial whitening step before the AES rounds.
+    # Vong 0: chi AddRoundKey (khong Sub/Shift/Mix).
     add_round_key(state, round_keys[0])
 
-    # Rounds 1..Nr-1 include MixColumns.
+    # Cac vong giua: SubBytes -> ShiftRows -> MixColumns -> AddRoundKey.
     for round_index in range(1, nr):
         sub_bytes(state)
         shift_rows(state)
         mix_columns(state)
         add_round_key(state, round_keys[round_index])
 
-    # Final round omits MixColumns.
+    # Vong cuoi bo MixColumns theo dung thiet ke AES.
     sub_bytes(state)
     shift_rows(state)
     add_round_key(state, round_keys[nr])
@@ -204,9 +213,9 @@ def decrypt_block(
     *,
     master_key: bytes | None = None,
 ) -> bytes:
-    """Decrypt one 16-byte block and return plaintext bytes.
+    """Giai ma mot block 16 byte va tra ve plaintext.
 
-    Accepts either `key` (preferred) or `master_key` (legacy keyword).
+    Chap nhan `key` (uu tien) hoac `master_key` (de tuong thich cu).
     """
     if len(block) != BLOCK_SIZE:
         raise ValueError(f"AES block must be {BLOCK_SIZE} bytes")
@@ -216,7 +225,7 @@ def decrypt_block(
         raise ValueError("provide only one of key or master_key")
 
     effective_key = key if key is not None else master_key
-    if effective_key is None:  # pragma: no cover - defensive guard
+    if effective_key is None:  # pragma: no cover - chan phong ve
         raise ValueError("key is required")
 
     round_keys = key_expansion(effective_key)
@@ -226,16 +235,17 @@ def decrypt_block(
     if nr not in (10, 12, 14):
         raise ValueError("expanded key produced unsupported round count")
 
-    # Start from the last round key and invert operations in reverse order.
+    # Bat dau tu round key cuoi, sau do dao nguoc thu tu encrypt.
     add_round_key(state, round_keys[nr])
 
+    # Cac vong nghich dao giua: InvShiftRows -> InvSubBytes -> AddRoundKey -> InvMixColumns.
     for round_index in range(nr - 1, 0, -1):
         inv_shift_rows(state)
         inv_sub_bytes(state)
         add_round_key(state, round_keys[round_index])
         inv_mix_columns(state)
 
-    # Final inverse round omits InvMixColumns.
+    # Vong nghich dao cuoi bo InvMixColumns (doi xung voi vong cuoi encrypt).
     inv_shift_rows(state)
     inv_sub_bytes(state)
     add_round_key(state, round_keys[0])

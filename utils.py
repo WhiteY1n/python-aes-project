@@ -1,4 +1,4 @@
-"""Shared utility helpers for file, byte, and safety operations."""
+"""Cac ham tien ich dung chung cho file, bytes va an toan so sanh."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ DEFAULT_CHUNK_SIZE: int = 64 * 1024
 
 
 def chunk_reader(file_path: Path, chunk_size: int = DEFAULT_CHUNK_SIZE) -> Iterator[bytes]:
-    """Yield file content in fixed-size chunks."""
+    """Tra ve noi dung file theo tung khoi co kich thuoc co dinh."""
     if chunk_size <= 0:
         raise ValueError("chunk_size must be greater than 0")
 
@@ -25,27 +25,27 @@ def chunk_reader(file_path: Path, chunk_size: int = DEFAULT_CHUNK_SIZE) -> Itera
 
 
 def random_bytes(length: int) -> bytes:
-    """Return cryptographically strong random bytes."""
+    """Tra ve bytes ngau nhien co do manh phu hop cho mat ma."""
     if length < 0:
         raise ValueError("length must not be negative")
     return secrets.token_bytes(length)
 
 
 def xor_bytes(left: bytes, right: bytes) -> bytes:
-    """XOR two byte strings of equal length."""
+    """XOR hai chuoi bytes co do dai bang nhau."""
     if len(left) != len(right):
         raise ValueError("left and right must have the same length")
     return bytes(a ^ b for a, b in zip(left, right))
 
 
 def secure_compare(left: bytes, right: bytes) -> bool:
-    """Compare two byte strings in constant time."""
+    """So sanh hai chuoi bytes theo thoi gian hang so."""
     return hmac.compare_digest(left, right)
 
 
 def atomic_rename(source: Path, destination: Path) -> None:
-    """Atomically replace destination with source when possible."""
+    """Doi ten/thay the file theo cach nguyen tu neu he dieu hanh ho tro."""
     os.replace(source, destination)
 
 
-# TODO: Add secure file wipe helper if project scope requires it.
+# TODO: Bo sung ham xoa file an toan neu scope du an can.

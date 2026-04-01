@@ -1,4 +1,4 @@
-"""Minimal TCP packet protocol for encrypted file transfer."""
+"""Giao thuc packet TCP toi gian cho truyen file da ma hoa."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ _SUFFIX_STRUCT = struct.Struct("!Q16sQ")
 
 @dataclass(frozen=True)
 class TransferHeader:
-    """Metadata sent before encrypted file payload."""
+    """Thong tin metadata di kem truoc payload da ma hoa."""
 
     file_name: str
     file_size: int
@@ -30,7 +30,7 @@ def build_packet(
     iv: bytes,
     ciphertext: bytes,
 ) -> bytes:
-    """Build a single transfer packet with header and ciphertext payload."""
+    """Tao mot packet truyen gom header va payload ciphertext."""
     if not file_name:
         raise ValueError("file_name must not be empty")
     if original_file_size < 0:
@@ -42,11 +42,13 @@ def build_packet(
     if len(filename_bytes) > 0xFFFF:
         raise ValueError("file_name is too long for protocol field")
 
+    # Prefix co do dai co dinh va chua magic/version/do dai ten file.
     prefix = _PREFIX_STRUCT.pack(
         PROTOCOL_MAGIC,
         PROTOCOL_VERSION,
         len(filename_bytes),
     )
+    # Suffix chua kich thuoc file goc, IV va do dai ciphertext.
     suffix = _SUFFIX_STRUCT.pack(
         original_file_size,
         iv,
@@ -56,7 +58,7 @@ def build_packet(
 
 
 def parse_header(packet: bytes) -> tuple[TransferHeader, int, int]:
-    """Parse protocol header and return metadata with ciphertext offsets."""
+    """Phan tich header protocol va tra ve metadata + vi tri ciphertext."""
     if len(packet) < _PREFIX_STRUCT.size + _SUFFIX_STRUCT.size:
         raise ValueError("packet too short for protocol header")
 
@@ -66,6 +68,7 @@ def parse_header(packet: bytes) -> tuple[TransferHeader, int, int]:
     if version != PROTOCOL_VERSION:
         raise ValueError("unsupported protocol version")
 
+    # Tinh bien phan tu bien do dai de cat packet an toan.
     filename_start = _PREFIX_STRUCT.size
     filename_end = filename_start + filename_length
     suffix_end = filename_end + _SUFFIX_STRUCT.size
@@ -88,7 +91,7 @@ def parse_header(packet: bytes) -> tuple[TransferHeader, int, int]:
 
 
 def recv_exact(sock: socket.socket, n: int) -> bytes:
-    """Receive exactly n bytes from socket or raise ConnectionError."""
+    """Nhan dung n bytes tu socket, thieu du lieu thi bao loi."""
     if n < 0:
         raise ValueError("n must be non-negative")
 
@@ -102,5 +105,5 @@ def recv_exact(sock: socket.socket, n: int) -> bytes:
 
 
 def extract_ciphertext(packet: bytes, offset: int, length: int) -> bytes:
-    """Extract ciphertext payload from parsed packet boundaries."""
+    """Cat payload ciphertext dua tren bien offset/length da parse."""
     return packet[offset : offset + length]

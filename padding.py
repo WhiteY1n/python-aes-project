@@ -1,9 +1,9 @@
-"""PKCS#7 padding helpers for block ciphers."""
+"""Ham ho tro them/bo dem PKCS#7 cho block cipher."""
 
 from __future__ import annotations
 
 def pkcs7_pad(data: bytes, block_size: int = 16) -> bytes:
-    """Apply PKCS#7 padding to input bytes."""
+    """Them dem PKCS#7 vao du lieu dau vao."""
     if block_size <= 0 or block_size > 255:
         raise ValueError("block_size must be in range 1..255")
 
@@ -14,7 +14,7 @@ def pkcs7_pad(data: bytes, block_size: int = 16) -> bytes:
 
 
 def pkcs7_unpad(data: bytes, block_size: int = 16) -> bytes:
-    """Remove PKCS#7 padding from input bytes."""
+    """Loai bo dem PKCS#7 khoi du lieu dau vao."""
     if block_size <= 0 or block_size > 255:
         raise ValueError("block_size must be in range 1..255")
     if not data:

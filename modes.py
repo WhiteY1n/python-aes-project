@@ -1,4 +1,4 @@
-"""AES block cipher mode skeletons (CBC only)."""
+"""Cac che do hoat dong cho block cipher AES (chi CBC)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from padding import pkcs7_pad, pkcs7_unpad
 
 
 def xor_bytes(a: bytes, b: bytes) -> bytes:
-    """XOR two byte strings of the same length."""
+    """XOR hai chuoi bytes co cung do dai."""
     if len(a) != len(b):
         raise ValueError("a and b must have the same length")
     return bytes(left ^ right for left, right in zip(a, b))
@@ -20,7 +20,7 @@ def cbc_encrypt(
     key: bytes,
     iv: bytes,
 ) -> bytes:
-    """Encrypt bytes with AES-CBC using PKCS#7 padding."""
+    """Ma hoa bytes bang AES-CBC ket hop PKCS#7."""
     if len(iv) != BLOCK_SIZE:
         raise ValueError(f"CBC IV must be {BLOCK_SIZE} bytes")
 
@@ -28,6 +28,7 @@ def cbc_encrypt(
     previous = iv
     output = bytearray()
 
+    # CBC encrypt: block hien tai se XOR voi block truoc do (hoac IV cho block dau).
     for offset in range(0, len(padded), BLOCK_SIZE):
         block = padded[offset : offset + BLOCK_SIZE]
         xored = xor_bytes(block, previous)
@@ -43,7 +44,7 @@ def cbc_decrypt(
     key: bytes,
     iv: bytes,
 ) -> bytes:
-    """Decrypt AES-CBC bytes and remove PKCS#7 padding."""
+    """Giai ma bytes AES-CBC va bo lop dem PKCS#7."""
     if len(iv) != BLOCK_SIZE:
         raise ValueError(f"CBC IV must be {BLOCK_SIZE} bytes")
     if not ciphertext:
@@ -54,6 +55,7 @@ def cbc_decrypt(
     previous = iv
     padded_plaintext = bytearray()
 
+    # CBC decrypt: giai ma block roi XOR lai voi block truoc (hoac IV cho block dau).
     for offset in range(0, len(ciphertext), BLOCK_SIZE):
         block = ciphertext[offset : offset + BLOCK_SIZE]
         decrypted = aes_decrypt_block(block, key)
@@ -68,7 +70,7 @@ def encrypt_cbc(
     key: bytes,
     iv: bytes,
 ) -> bytes:
-    """Backward-compatible alias for cbc_encrypt."""
+    """Alias de giu tuong thich nguoc cho cbc_encrypt."""
     return cbc_encrypt(
         data=plaintext,
         key=key,
@@ -81,7 +83,7 @@ def decrypt_cbc(
     key: bytes,
     iv: bytes,
 ) -> bytes:
-    """Backward-compatible alias for cbc_decrypt."""
+    """Alias de giu tuong thich nguoc cho cbc_decrypt."""
     return cbc_decrypt(
         ciphertext=ciphertext,
         key=key,
