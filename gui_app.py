@@ -26,8 +26,10 @@ RECEIVER_OUTPUT_DIR = Path("received")
 # Gia tri 128-bit ngau nhien de demo nhanh; nguoi dung van co the sua tay.
 SEND_PRESET_1_KEY_HEX = "08b80c4754d25a828ab0744bf50a4839"
 SEND_PRESET_1_IV_HEX = "12927c14feb1c98b2fe14c75f63ad7f0"
-SEND_PRESET_2_KEY_HEX = "05a8a22e67cc3baf0fc441f26c16e7d1"
+SEND_PRESET_2_KEY_HEX = "05a8a22e67cc3baf0fc441f26c16e7d1d789b266a64955f0"
 SEND_PRESET_2_IV_HEX = "d789b266a64955f0cb1fe07649d836e3"
+SEND_PRESET_3_KEY_HEX = "5f2d7c4be8a14916b6c30f7ad9e25801470dc5a2f19e6b38a4d7c9e2510fb3c6"
+SEND_PRESET_3_IV_HEX = "83d1f27ab4e9056c1a7fe2d09bc45831"
 
 
 class AESGuiApp(tk.Tk):
@@ -134,13 +136,18 @@ class AESGuiApp(tk.Tk):
         ttk.Label(preset_frame, text="Quick presets:").pack(side=tk.LEFT)
         ttk.Button(
             preset_frame,
-            text="Preset 1",
+            text="Preset 1 (16B)",
             command=lambda: self._apply_send_preset(1),
         ).pack(side=tk.LEFT, padx=(8, 0))
         ttk.Button(
             preset_frame,
-            text="Preset 2",
+            text="Preset 2 (24B)",
             command=lambda: self._apply_send_preset(2),
+        ).pack(side=tk.LEFT, padx=(6, 0))
+        ttk.Button(
+            preset_frame,
+            text="Preset 3 (32B)",
+            command=lambda: self._apply_send_preset(3),
         ).pack(side=tk.LEFT, padx=(6, 0))
 
         self.send_button = ttk.Button(parent, text="Encrypt & Send", command=self._on_encrypt_send)
@@ -210,12 +217,18 @@ class AESGuiApp(tk.Tk):
         if index == 1:
             self._send_key_var.set(SEND_PRESET_1_KEY_HEX)
             self._send_iv_var.set(SEND_PRESET_1_IV_HEX)
-            self._append_log("[sender] Applied preset 1 key/iv.")
+            self._append_log("[sender] Applied preset 1 (16-byte key) key/iv.")
             return
 
-        self._send_key_var.set(SEND_PRESET_2_KEY_HEX)
-        self._send_iv_var.set(SEND_PRESET_2_IV_HEX)
-        self._append_log("[sender] Applied preset 2 key/iv.")
+        if index == 2:
+            self._send_key_var.set(SEND_PRESET_2_KEY_HEX)
+            self._send_iv_var.set(SEND_PRESET_2_IV_HEX)
+            self._append_log("[sender] Applied preset 2 (24-byte key) key/iv.")
+            return
+
+        self._send_key_var.set(SEND_PRESET_3_KEY_HEX)
+        self._send_iv_var.set(SEND_PRESET_3_IV_HEX)
+        self._append_log("[sender] Applied preset 3 (32-byte key) key/iv.")
 
     def _on_toggle_listening(self) -> None:
         if self._receiver_thread and self._receiver_thread.is_alive():
